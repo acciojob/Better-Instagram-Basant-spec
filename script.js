@@ -2,41 +2,39 @@ document.addEventListener('DOMContentLoaded', () => {
   const images = document.querySelectorAll('.image');
   let draggedElement = null;
 
-  // Attach dragstart, dragover, drop, and dragend event listeners
   images.forEach(image => {
-    image.addEventListener('dragstart', handleDragStart);
-    image.addEventListener('dragover', handleDragOver);
-    image.addEventListener('drop', handleDrop);
-    image.addEventListener('dragend', handleDragEnd);
+    // Handle drag start
+    image.addEventListener('dragstart', (e) => {
+      draggedElement = image;
+      e.dataTransfer.setData('text/plain', null); // Required for some testing frameworks
+      setTimeout(() => image.classList.add('dragging'), 0); // Add a visual effect
+    });
+
+    // Handle drag over
+    image.addEventListener('dragover', (e) => {
+      e.preventDefault(); // Allows dropping
+    });
+
+    // Handle drop
+    image.addEventListener('drop', (e) => {
+      e.preventDefault();
+      if (image !== draggedElement) {
+        // Swap elements
+        const draggedHTML = draggedElement.innerHTML;
+        const draggedBG = draggedElement.style.backgroundImage;
+
+        draggedElement.innerHTML = image.innerHTML;
+        draggedElement.style.backgroundImage = image.style.backgroundImage;
+
+        image.innerHTML = draggedHTML;
+        image.style.backgroundImage = draggedBG;
+      }
+    });
+
+    // Handle drag end
+    image.addEventListener('dragend', () => {
+      draggedElement.classList.remove('dragging');
+      draggedElement = null; // Reset dragged element
+    });
   });
-
-  function handleDragStart(e) {
-    draggedElement = this; // Reference to the element being dragged
-    setTimeout(() => this.classList.add('dragging'), 0); // Add class for visibility
-  }
-
-  function handleDragOver(e) {
-    e.preventDefault(); // Necessary for drop to work
-  }
-
-  function handleDrop(e) {
-    e.preventDefault();
-
-    if (this !== draggedElement) {
-      // Swap the innerHTML (content) of the dragged and target elements
-      const draggedContent = draggedElement.innerHTML;
-      const draggedBackground = draggedElement.style.backgroundImage;
-
-      draggedElement.innerHTML = this.innerHTML;
-      draggedElement.style.backgroundImage = this.style.backgroundImage;
-
-      this.innerHTML = draggedContent;
-      this.style.backgroundImage = draggedBackground;
-    }
-  }
-
-  function handleDragEnd() {
-    this.classList.remove('dragging'); // Remove the class
-    draggedElement = null; // Reset dragged element
-  }
 });
