@@ -1,39 +1,42 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const images = document.querySelectorAll('.image'); // Select all draggable elements
-  let draggedElement = null; // To keep track of the currently dragged element
+  const images = document.querySelectorAll('.image');
+  let draggedElement = null;
 
-  // Add drag event listeners to each image
-  images.forEach((image) => {
-    image.addEventListener('dragstart', (event) => {
-      draggedElement = event.target; // Store the dragged element
-      event.target.classList.add('selected'); // Highlight the element being dragged
-    });
-
-    image.addEventListener('dragend', (event) => {
-      event.target.classList.remove('selected'); // Remove highlight after dragging
-      draggedElement = null; // Reset dragged element
-    });
-
-    image.addEventListener('dragover', (event) => {
-      event.preventDefault(); // Allow dropping
-    });
-
-    image.addEventListener('drop', (event) => {
-      event.preventDefault();
-      const targetElement = event.target; // Get the drop target
-
-      // Ensure the drop target is a valid image and not the same as the dragged element
-      if (draggedElement && draggedElement !== targetElement) {
-        // Swap the content of dragged and target elements
-        const draggedContent = draggedElement.innerHTML;
-        const draggedStyle = draggedElement.style.backgroundImage;
-
-        draggedElement.innerHTML = targetElement.innerHTML;
-        draggedElement.style.backgroundImage = targetElement.style.backgroundImage;
-
-        targetElement.innerHTML = draggedContent;
-        targetElement.style.backgroundImage = draggedStyle;
-      }
-    });
+  // Attach dragstart, dragover, drop, and dragend event listeners
+  images.forEach(image => {
+    image.addEventListener('dragstart', handleDragStart);
+    image.addEventListener('dragover', handleDragOver);
+    image.addEventListener('drop', handleDrop);
+    image.addEventListener('dragend', handleDragEnd);
   });
+
+  function handleDragStart(e) {
+    draggedElement = this; // Reference to the element being dragged
+    setTimeout(() => this.classList.add('dragging'), 0); // Add class for visibility
+  }
+
+  function handleDragOver(e) {
+    e.preventDefault(); // Necessary for drop to work
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+
+    if (this !== draggedElement) {
+      // Swap the innerHTML (content) of the dragged and target elements
+      const draggedContent = draggedElement.innerHTML;
+      const draggedBackground = draggedElement.style.backgroundImage;
+
+      draggedElement.innerHTML = this.innerHTML;
+      draggedElement.style.backgroundImage = this.style.backgroundImage;
+
+      this.innerHTML = draggedContent;
+      this.style.backgroundImage = draggedBackground;
+    }
+  }
+
+  function handleDragEnd() {
+    this.classList.remove('dragging'); // Remove the class
+    draggedElement = null; // Reset dragged element
+  }
 });
